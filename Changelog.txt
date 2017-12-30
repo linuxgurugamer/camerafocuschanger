@@ -1,0 +1,13 @@
+1.0.2
+	Adoption by LGG
+	Recompiled for KSP 1.3.1
+
+1.0.0
+	Updated for KSP 1.2
+	New display messages on part updates / staging / undocking
+	Reset focus on IVA / part packing
+	Better handling of double click
+	Better handling of transition back to default position (COM)
+
+0.9.0
+	Initial release

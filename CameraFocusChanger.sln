@@ -1,7 +1,20 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CameraFocusChanger", "CameraFocusChanger/CameraFocusChanger.csproj", "{EFAFE959-07C2-4898-AA9D-D766EA8B188E}"
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.8
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CameraFocusChanger", "CameraFocusChanger\CameraFocusChanger.csproj", "{EFAFE959-07C2-4898-AA9D-D766EA8B188E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{28F6DEB7-5D5C-4FAA-821B-A9A5477150C4}"
+	ProjectSection(SolutionItems) = preProject
+		buildRelease.bat = buildRelease.bat
+		CameraFocusChanger.version = CameraFocusChanger.version
+		Changelog.txt = Changelog.txt
+		deploy.bat = deploy.bat
+		jenkins.txt = jenkins.txt
+		License.txt = License.txt
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -16,5 +29,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5C338A90-5225-4E3D-823F-0B262A8ACE3F}
 	EndGlobalSection
 EndGlobal
