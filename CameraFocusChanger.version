@@ -1,9 +1,9 @@
 {
     "NAME": "Camera Focus Changer",
-    "DOWNLOAD": "https://github.com/zentarul/camerafocuschanger/releases",
-    "URL": "https://raw.githubusercontent.com/zentarul/camerafocuschanger/master/GameData/CameraFocusChanger/CFC.version",
+    "DOWNLOAD": "https://github.com/linuxgurugamer/camerafocuschanger/releases",
+    "URL": "https://raw.githubusercontent.com/linuxgurugamer/camerafocuschanger/master/CameraFocusChanger.version",
     "GITHUB": {
-        "USERNAME": "zentarul",
+        "USERNAME": "linuxgurugamer",
         "REPOSITORY": "camerafocuschanger"
     },
     "VERSION": {
