@@ -1,7 +1,7 @@
 {
     "NAME": "Camera Focus Changer",
     "DOWNLOAD": "https://github.com/linuxgurugamer/camerafocuschanger/releases",
-    "URL": "https://raw.githubusercontent.com/linuxgurugamer/camerafocuschanger/master/CameraFocusChanger.version",
+    "URL": "http://ksp.spacetux.net/avc/CameraFocusChanger",
     "GITHUB": {
         "USERNAME": "linuxgurugamer",
         "REPOSITORY": "camerafocuschanger"
@@ -10,16 +10,16 @@
         "MAJOR": 1,
         "MINOR": 0,
         "PATCH": 4,
-        "BUILD": 0
+        "BUILD": 1
     },
     "KSP_VERSION_MIN": {
         "MAJOR": 1,
-        "MINOR": 4,
+        "MINOR": 5,
         "PATCH": 1
     },
     "KSP_VERSION_MAX": {
         "MAJOR": 1,
-        "MINOR": 4,
+        "MINOR": 5,
         "PATCH": 99
     }
 }
