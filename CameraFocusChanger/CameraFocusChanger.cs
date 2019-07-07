@@ -1,6 +1,8 @@
 ﻿//#define debugCFC
 
 using System;
+using System.Diagnostics;
+
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -21,17 +23,16 @@ namespace CameraFocusChanger
         bool isFocusing;
         bool showUpdateMessage = true;
 
-
+        [ConditionalAttribute("DEBUG")]
         void DebugPrint(string text)
         {
-#if debugCFC
             print("[CFC] " + text);
-#endif
         }
 
         void Start()
         {
             DebugPrint("Starting Camera Focus Changer");
+
             flightCamera = FlightCamera.fetch;
             pivotTranslateSharpness = 0.5f;
             hasReachedTarget = false;
