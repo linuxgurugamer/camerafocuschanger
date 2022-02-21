@@ -1,5 +1,15 @@
 ChangeLog
 
+1.1.0.2
+	Added two new modes, stock and hybrid
+		Use <ALT>O (alt key and letter O) to toggle between the different modes
+		Normal mode will smooth scroll to the new focus and back to the active vessel
+		Stock mode will instantly snap to the new vessel, and snap back to the active vessel
+		Hybrid mode will scroll smoothly to the new focus, and snap back to the active vessel
+		The Stock and Hybrid modes should fix the camera shake problems reported for the normal mode
+	Replaced XML file with cfg file
+		The config file is in the PluginData directory, and is easier to change than the xml file
+
 1.1.0.1
 	Added AssemblyFileVersion
 	Updated version file for 1.12

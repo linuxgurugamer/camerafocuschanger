@@ -1,6 +1,7 @@
 ﻿//#define debugCFC
 
 using System;
+using System.IO;
 using System.Diagnostics;
 
 using UnityEngine;
@@ -18,6 +19,9 @@ namespace CameraFocusChanger
         float pivotTranslateSharpness;
         Transform targetTransform;
         UnityEngine.KeyCode actionKey = KeyCode.O;
+        enum SnapMode { smooth, stock, hybrid };
+        SnapMode snapMode = SnapMode.smooth;
+
         float startFocusTime;
         bool hasReachedTarget;
         bool isFocusing;
@@ -29,6 +33,49 @@ namespace CameraFocusChanger
             print("[CFC] " + text);
         }
 
+        public static readonly String ROOT_PATH = KSPUtil.ApplicationRootPath;
+        private static readonly String CONFIG_BASE_FOLDER = ROOT_PATH + "GameData/";
+        private static String CFC_BASE_FOLDER = CONFIG_BASE_FOLDER + "CameraFocusChanger/";
+        private static String CFC_CFG_FILE = CFC_BASE_FOLDER + "PluginData/CameraFocusChanger.cfg";
+        private static string CFC_NODE = "CameraFocusChager";
+
+
+        static string SafeLoad(string value, string oldvalue)
+        {
+            if (value == null)
+                return oldvalue.ToString();
+            return value;
+        }
+
+        bool LoadCfg()
+        {
+            ConfigNode file;
+
+            if (System.IO.File.Exists(CFC_CFG_FILE))
+                file = ConfigNode.Load(CFC_CFG_FILE);
+            else
+                return false;
+
+            ConfigNode node = file.GetNode(CFC_NODE);
+            if (node != null)
+            {
+                actionKey = (KeyCode)System.Enum.Parse(typeof(KeyCode), SafeLoad(node.GetValue("actionKey"), "O"));
+                snapMode = (SnapMode)System.Enum.Parse(typeof(SnapMode), SafeLoad(node.GetValue("snapMode"), SnapMode.smooth.ToString()));
+                DebugPrint("LoadCfg, actionKey: " + actionKey.ToString() + ", snapMode: " + snapMode.ToString());
+            }
+            return true;
+        }
+        void SaveCfg()
+        {
+            ConfigNode file = new ConfigNode();
+            ConfigNode node = new ConfigNode();
+            node.AddValue("actionKey", actionKey.ToString());
+            node.AddValue("snapMode", snapMode.ToString());
+            file.AddNode(CFC_NODE, node);
+            file.Save(CFC_CFG_FILE);
+
+        }
+           
         void Start()
         {
             DebugPrint("Starting Camera Focus Changer");
@@ -40,7 +87,11 @@ namespace CameraFocusChanger
 
             PluginConfiguration config = PluginConfiguration.CreateForType<CameraFocusChanger>();
             config.load();
-            actionKey = config.GetValue<KeyCode>("actionKey", KeyCode.O);
+            //actionKey = config.GetValue<KeyCode>("actionKey", KeyCode.O);
+
+
+            if (!LoadCfg())
+                SaveCfg();
             showUpdateMessage = config.GetValue<bool>("showUpdateMessage", true);
 
             GameEvents.OnCameraChange.Add(OnCameraChange);
@@ -126,7 +177,7 @@ namespace CameraFocusChanger
                 Part part = Part.FromGO(targetTransform.gameObject);
                 if (part != null && part.vessel != currentVessel)
                 {
-                    DebugPrint("vessel missmatch");
+                    DebugPrint("vessel mismatch");
                     string message = string.Format("CFC WARNING\n!!!Controlled Vessel is not Focussed!!!");
                     var screenMessage = new ScreenMessage(message, 3.0f, ScreenMessageStyle.UPPER_CENTER);
                     ScreenMessages.PostScreenMessage(screenMessage);
@@ -141,6 +192,29 @@ namespace CameraFocusChanger
             bool inputFieldIsFocused = InputLockManager.IsAllLocked(ControlTypes.KEYBOARDINPUT) || (obj != null && obj.GetComponent<InputField>() != null && obj.GetComponent<InputField>().isFocused);
             if (!inputFieldIsFocused && Input.GetKeyDown(actionKey))
             {
+                if (GameSettings.MODIFIER_KEY.GetKey())
+                {
+                    snapMode++;
+                    if (snapMode > SnapMode.hybrid)
+                        snapMode = SnapMode.smooth;
+                    switch (snapMode)
+                    {
+                         case SnapMode.smooth:
+                            ScreenMessages.PostScreenMessage("Camera Focus Changer mode changed to smooth scrolling");
+                            break;
+                       case SnapMode.stock:
+                            ScreenMessages.PostScreenMessage("Camera Focus Changer mode changed to Stock (instant snapping)");
+                            break;
+                        case SnapMode.hybrid:
+                            ScreenMessages.PostScreenMessage("Camera Focus Changer mode changed to hybrid (smooth scrolling, snap back to active)");
+                            break;
+                    }
+
+                    SaveCfg();
+
+                    return;
+                }
+
                 DebugPrint("updating camera focus");
 
                 if ((Time.time - startFocusTime) < 0.25f)
@@ -179,7 +253,7 @@ namespace CameraFocusChanger
 
         public void FocusOn(Transform transform)
         {
-            DebugPrint(string.Format("tound target {0}", transform.gameObject.name));
+            DebugPrint(string.Format("found target {0}", transform.gameObject.name));
             if (flightCamera.pivotTranslateSharpness > 0)
             {
                 pivotTranslateSharpness = flightCamera.pivotTranslateSharpness;
@@ -201,6 +275,8 @@ namespace CameraFocusChanger
             startFocusTime = Time.time;
             isFocusing = true;
             targetTransform = transform;
+            DebugPrint("FocusOn, activeVessel.currentPosition: " + FlightGlobals.ActiveVessel.GetWorldPos3D() + ", targetTransform.position: " + targetTransform.position);
+
         }
 
         public void ResetFocus()
@@ -217,6 +293,7 @@ namespace CameraFocusChanger
             isFocusing = true;
             startFocusTime = Time.time;
             flightCamera.pivotTranslateSharpness = pivotTranslateSharpness;
+            DebugPrint("ResetFocus, activeVessel.currentPosition: " + FlightGlobals.ActiveVessel.GetWorldPos3D());
         }
 
         void UpdateFocus()
@@ -232,18 +309,63 @@ namespace CameraFocusChanger
                 Vector3 positionDifference = flightCamera.transform.parent.position - targetPosition;
                 float distance = positionDifference.magnitude;
 
-                //if (distance >= 0.015f)
-                    //print(string.Format("Distance of {0}", distance));
+                //if (distance >= 0.015f)                    DebugPrint(string.Format("Distance of {0}", distance));
+                DebugPrint("UpdateFocus, targetPosition: " + targetPosition + ", flightCamera.transform.parent.position: " + flightCamera.transform.parent.position + ", distance: " + distance);
+
+#if true
+                if (snapMode != SnapMode.smooth)
+                {
+                    // stock
+                    if (targetTransform != null)
+                    {
+                        if (snapMode == SnapMode.stock)
+                        {
+                            Part part = targetTransform != null ? Part.FromGO(targetTransform.gameObject) : null;
+                            if (part != null)
+                                FlightCamera.SetTarget(part);
+                        }
+                    }
+                    else
+                    {
+                        if (FlightGlobals.ActiveVessel != null) // && stockInstant == SnapMode.stock)
+                            FlightCamera.SetTarget(FlightGlobals.ActiveVessel);
+                    }
+                    if (snapMode == SnapMode.stock && targetTransform == null)
+                    {
+                        hasReachedTarget = true;
+
+                        return;
+                    }
+                }
+#endif
 
                 if (hasReachedTarget || distance < 0.015f)
                 {
                     flightCamera.transform.parent.position = targetPosition;
                     hasReachedTarget = true;
                     isFocusing = targetTransform != null;
+                    DebugPrint("UpdateFocus 1");
+#if false
+                    if (targetTransform != null)
+                    {
+
+                        Part part = targetTransform != null ? Part.FromGO(targetTransform.gameObject) : null;
+                        if (part != null)
+                            FlightCamera.SetTarget(part);
+                        flightCamera.transform.parent.position = targetPosition;
+                    }
+                    else
+                    {
+                        if (FlightGlobals.ActiveVessel != null)
+                            FlightCamera.SetTarget(FlightGlobals.ActiveVessel);
+                    }
+#endif
+                    hasReachedTarget = true;
+
                 }
                 else
                 {
-                    //DebugPrint(string.Format("Moving by {0}", (positionDifference.normalized * Time.fixedDeltaTime * (distance * Math.Max(4 - distance, 1))).magnitude));
+                    DebugPrint(string.Format("Moving by {0}", (positionDifference.normalized * Time.fixedDeltaTime * (distance * Math.Max(4 - distance, 1))).magnitude));
                     flightCamera.transform.parent.position -= positionDifference.normalized * Time.fixedDeltaTime * (distance * Math.Max(4 - distance, 1));
                     // if the parts are not of the same craft, boost the speed at which we move towards it
                     Part part = targetTransform != null ? Part.FromGO(targetTransform.gameObject) : null;
@@ -251,9 +373,17 @@ namespace CameraFocusChanger
                     {
                         flightCamera.transform.parent.position -= positionDifference.normalized * Time.fixedDeltaTime;
                         if (Time.time - startFocusTime > 10.0f)
+                        {
                             hasReachedTarget = true;
+                            DebugPrint("UpdateFocus 2");
+                        }
+                        else
+                            DebugPrint("UpdateFocus 3");
                     }
+                    else
+                        DebugPrint("UpdateFocus 4");
                 }
+
             }
         }
 
