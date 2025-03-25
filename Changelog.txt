@@ -1,5 +1,9 @@
 ChangeLog
 
+1.1.0.3
+	Fixed typo in a screen message (focussed -> focused)
+	Updated version file to use github for new version info
+
 1.1.0.2
 	Added two new modes, stock and hybrid
 		Use <ALT>O (alt key and letter O) to toggle between the different modes

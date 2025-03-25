@@ -31,6 +31,7 @@
 
 # 3:SOURCEFILE, DESTDIR
 3:CameraFocusChanger.version,GameData/CameraFocusChanger
+3:Changelog.cfg,GameData/CameraFocusChanger
 
 
 # 4:SOURCDIR, DESTDIR

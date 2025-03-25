@@ -178,7 +178,7 @@ namespace CameraFocusChanger
                 if (part != null && part.vessel != currentVessel)
                 {
                     DebugPrint("vessel mismatch");
-                    string message = string.Format("CFC WARNING\n!!!Controlled Vessel is not Focussed!!!");
+                    string message = string.Format("CFC WARNING\n!!!Controlled Vessel is not Focused!!!");
                     var screenMessage = new ScreenMessage(message, 3.0f, ScreenMessageStyle.UPPER_CENTER);
                     ScreenMessages.PostScreenMessage(screenMessage);
                 }
